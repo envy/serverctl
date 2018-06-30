@@ -4,9 +4,7 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12 text-left">
-        {% for pool in pools %}
-            <a href="zfs/{{ pool.name }}">{{ pool.name }}</a>
-        {% endfor %}
+        {{ pool }}
     </div>
   </div>
 </div>

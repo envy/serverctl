@@ -39,5 +39,13 @@ def zfs_index():
     return args
 
 
+@route('/zfs/<pool>')
+@view('zpool')
+def zfs_pool(pool: str):
+    pool = zfs.get_pool(pool)
+    args = dict(template_args, pool=pool)
+    return args
+
+
 if __name__ == '__main__':
     run(host='localhost', port=8080)
