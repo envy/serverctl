@@ -1,3 +1,7 @@
+import subprocess
+import sys
+
+
 def parse_size(s: str):
     last = s[-1]
     value = float(s[:-1])
@@ -10,3 +14,75 @@ def parse_size(s: str):
     elif last == 'T':
         value *= 1024 * 1024 * 1024 * 1024
     return value
+
+
+def format_size(v: int):
+    suffix = 'B'
+    while v > 1024:
+        v /= 1024
+        if suffix == 'B':
+            suffix = 'K'
+        elif suffix == 'K':
+            suffix = 'M'
+        elif suffix == 'M':
+            suffix = 'G'
+        elif suffix == 'G':
+            suffix = 'T'
+        elif suffix == 'T':
+            suffix = 'P'
+    return "{0:.2f}{1}".format(v, suffix)
+
+
+
+def split_cmd(cmd: str):
+    # We want to split the string on spaces but not inside quotes
+    # Also we want to stop after we encounter a semicolon
+
+    # First, trim whitespace at start end end
+    cmd = cmd.strip(' \t\n')
+
+    # Now iterate through the string
+    cmdparts = []
+    cur = ''
+    inquote = False
+    starti = 0
+    for i in range(0, len(cmd)):
+        if inquote:
+            c = cmd[i]
+            if i == len(cmd) - 1:
+                # We are at the end, add the last part
+                if len(cur) > 0:
+                    cmdparts.append(cur)
+                cur = ''
+            elif c == '"':
+                # We found the closing quote
+                inquote = False
+            else:
+                cur += c
+
+        else:
+            c = cmd[i]
+            if i == len(cmd)-1:
+                # We are add the end, add the last part
+                cur += c
+                if len(cur) > 0:
+                    cmdparts.append(cur)
+                cur = ''
+            elif c == ' ':
+                if len(cur) > 0:
+                    cmdparts.append(cur)
+                cur = ''
+            elif c == '"':
+                inquote = True
+            else:
+                cur += c
+
+    return cmdparts
+
+
+def execute(cmd: str):
+    # cmd = ['zpool', 'list', '-Ho', 'name,size,allocated,free,health']
+    cmdarr = split_cmd(cmd)
+    _list = subprocess.run(cmdarr, stdout=subprocess.PIPE)
+    s = _list.stdout.decode(sys.stdout.encoding)
+    return s

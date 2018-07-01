@@ -34,7 +34,7 @@ def index():
 @route('/zfs')
 @view('zfs')
 def zfs_index():
-    pools = zfs.get_pools()
+    pools = zfs.ZFSPool.get_pools()
     args = dict(template_args, pools=pools)
     return args
 
@@ -42,7 +42,7 @@ def zfs_index():
 @route('/zfs/<pool>')
 @view('zpool')
 def zfs_pool(pool: str):
-    pool = zfs.get_pool(pool)
+    pool = zfs.ZFSPool.get_pool(pool)
     args = dict(template_args, pool=pool)
     return args
 
