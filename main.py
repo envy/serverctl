@@ -1,5 +1,5 @@
 import functools
-import zfs
+import zfs, system
 from bottle import route, error, run, jinja2_view, static_file
 
 view = functools.partial(jinja2_view, template_lookup=['templates'])
@@ -28,7 +28,10 @@ def error404(_error):
 @route('/')
 @view('index')
 def index():
-    return template_args
+    _system = system.System()
+    _system.update()
+    args = dict(template_args, system=_system)
+    return args
 
 
 @route('/zfs')

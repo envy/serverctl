@@ -1,9 +1,5 @@
-import subprocess
 import utils
-import sys
 from enum import Enum
-
-TESTMODE = True
 
 
 class Health(Enum):
@@ -61,7 +57,7 @@ class ZFSPool(object):
 
     @staticmethod
     def get_pools():
-        if TESTMODE:
+        if utils.testmode():
             s = 'tank\tONLINE\n'
         else:
             cmd = 'zpool list -Ho name,health'
@@ -78,7 +74,7 @@ class ZFSPool(object):
 
     @staticmethod
     def get_pool(name: str):
-        if TESTMODE:
+        if utils.testmode():
             s = '{0}\tONLINE\n'.format(name)
         else:
             cmd = 'zpool list -Ho name,health {0}'.format(name)
@@ -94,7 +90,7 @@ class ZFSPool(object):
         return pool
 
     def update(self):
-        if TESTMODE:
+        if utils.testmode():
             s = 'tank\t49511726880\t1879190733024\t130944\t/tank\n'
         else:
             cmd = "zfs list -Hp {0}".format(self.name)

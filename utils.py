@@ -1,5 +1,10 @@
 import subprocess
 import sys
+import datetime
+
+
+def testmode():
+    return True
 
 
 def parse_size(s: str):
@@ -32,6 +37,9 @@ def format_size(v: int):
             suffix = 'P'
     return "{0:.2f}{1}".format(v, suffix)
 
+
+def parse_timedelta(td: str):
+    return datetime.timedelta()
 
 
 def split_cmd(cmd: str):
@@ -83,6 +91,8 @@ def split_cmd(cmd: str):
 def execute(cmd: str):
     # cmd = ['zpool', 'list', '-Ho', 'name,size,allocated,free,health']
     cmdarr = split_cmd(cmd)
-    _list = subprocess.run(cmdarr, stdout=subprocess.PIPE)
-    s = _list.stdout.decode(sys.stdout.encoding)
-    return s
+    result = subprocess.run(cmdarr, stdout=subprocess.PIPE)
+    print('Execute result: ')
+    print(result)
+    encoded = result.stdout.decode(sys.stdout.encoding)
+    return encoded
