@@ -1,6 +1,5 @@
 import subprocess
 import sys
-import datetime
 
 
 def testmode():
@@ -36,10 +35,6 @@ def format_size(v: int):
         elif suffix == 'T':
             suffix = 'P'
     return "{0:.2f}{1}".format(v, suffix)
-
-
-def parse_timedelta(td: str):
-    return datetime.timedelta()
 
 
 def split_cmd(cmd: str):

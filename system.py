@@ -1,19 +1,20 @@
 import utils
 import datetime
 
-
 class System:
 
     def __init__(self):
+        self.start = datetime.datetime.now()
         self.uptime = datetime.timedelta()
 
     def update(self):
         if utils.testmode():
-            up = ' 18:59:20 up 30 days,  7:21,  1 user,  load average: 0.00, 0.00, 0.00\n'
+            up = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         else:
-            up = utils.execute('uptime')
+            up = utils.execute('uptime -s')
 
-        self.uptime = utils.parse_timedelta(up)
+        self.start = datetime.datetime.strptime(up, '%Y-%m-%d %H:%M:%S')
+        self.uptime = datetime.datetime.now() - self.start
 
     def __str__(self):
         return "{0}".format(self.uptime)
