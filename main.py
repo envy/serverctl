@@ -1,5 +1,6 @@
 import functools
-from modules import zfs, system
+from modules.zfs.module import ZFS
+from modules.system.module import System
 import bottle
 import state
 
@@ -8,8 +9,8 @@ view = functools.partial(bottle.jinja2_view, template_lookup=['templates/include
 
 
 def discover_modules():
-    modules = [zfs.ZFS]  # System module omitted because it is always on
-    state.loaded_modules.append(system.System)
+    modules = [ZFS]  # System module omitted because it is always on
+    state.loaded_modules.append(System)
     for module in modules:
         if module.should_activate():
             module.add_template_args()
@@ -36,7 +37,7 @@ def error404(_error):
 @app.route('/')
 @view('index')
 def index():
-    _system = system.System()
+    _system = System()
     _system.update()
     args = dict(state.template_args, system=_system)
     return args
