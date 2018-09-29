@@ -4,9 +4,24 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12 text-left">
-        {% for pool in pools %}
-            <a href="zfs/{{ pool.name }}">{{ pool.name }}</a>
-        {% endfor %}
+        <table class="table table-condensed">
+        <thead>
+            <tr>
+                <td>Pool</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pool in pools %}
+            <tr>
+                <td>
+                    <a href="zfs/{{ pool.name }}">{{ pool.name }}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+
+        </table>
     </div>
   </div>
 </div>
