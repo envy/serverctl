@@ -15,11 +15,7 @@ class System(BaseModule):
         self.hostname = ""
 
     def update(self):
-        if utils.testmode():
-            r = 0
-            up = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S\n')
-        else:
-            r, up = utils.execute('uptime -s')
+        r, up = utils.execute('uptime -s')
 
         if r != 0:
             # TODO: error handling

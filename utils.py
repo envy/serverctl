@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import tests.fakedataprovider
 
 
 def testmode():
@@ -48,7 +49,6 @@ def split_cmd(cmd: str):
     cmdparts = []
     cur = ''
     inquote = False
-    starti = 0
     for i in range(0, len(cmd)):
         if inquote:
             c = cmd[i]
@@ -84,7 +84,9 @@ def split_cmd(cmd: str):
 
 
 def execute(cmd: str):
-    # cmd = ['zpool', 'list', '-Ho', 'name,size,allocated,free,health']
+    if testmode():
+        return tests.fakedataprovider.execute_fake(cmd)
+
     cmdarr = split_cmd(cmd)
     result = subprocess.run(cmdarr, stdout=subprocess.PIPE)
     print('Execute result: ')

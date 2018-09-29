@@ -1,5 +1,5 @@
 import bottle
-import config
+import state
 
 
 class BaseModule(object):
@@ -20,4 +20,4 @@ class BaseModule(object):
 
     @staticmethod
     def add_template_args():
-        config.template_args['navbar'].append(('/{}'.format(BaseModule.crumb), BaseModule.crumb, BaseModule.name, BaseModule.icon))
+        state.template_args['navbar'].append(('/{}'.format(BaseModule.crumb), BaseModule.crumb, BaseModule.name, BaseModule.icon))

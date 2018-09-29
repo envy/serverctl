@@ -1,7 +1,7 @@
 import functools
 from modules import zfs, system
 import bottle
-import config
+import state
 
 app = bottle.Bottle()
 view = functools.partial(bottle.jinja2_view, template_lookup=['templates/includes', 'templates'])
@@ -9,12 +9,12 @@ view = functools.partial(bottle.jinja2_view, template_lookup=['templates/include
 
 def discover_modules():
     modules = [zfs.ZFS]  # System module omitted because it is always on
-    config.loaded_modules.append(system.System)
+    state.loaded_modules.append(system.System)
     for module in modules:
         if module.should_activate():
             module.add_template_args()
             module.add_routes(app)
-            config.loaded_modules.append(module)
+            state.loaded_modules.append(module)
 
 
 @app.route('/static/<filename>')
@@ -38,7 +38,7 @@ def error404(_error):
 def index():
     _system = system.System()
     _system.update()
-    args = dict(config.template_args, system=_system)
+    args = dict(state.template_args, system=_system)
     return args
 
 
