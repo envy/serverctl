@@ -8,12 +8,13 @@ view = functools.partial(bottle.jinja2_view, template_lookup=['templates/include
 
 
 def discover_modules():
-    # System module omitted because it is always on
-    modules = [zfs.ZFS]
+    modules = [zfs.ZFS]  # System module omitted because it is always on
+    config.loaded_modules.append(system.System)
     for module in modules:
         if module.should_activate():
             module.add_template_args()
             module.add_routes(app)
+            config.loaded_modules.append(module)
 
 
 @app.route('/static/<filename>')

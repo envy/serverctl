@@ -4,23 +4,36 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12 text-left">
+        <h1>ZFS</h1>
+        <hr />
+        <h2>Pools</h2>
         <table class="table table-condensed">
-        <thead>
-            <tr>
-                <td>Pool</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for pool in pools %}
-            <tr>
-                <td>
-                    <a href="zfs/{{ pool.name }}">{{ pool.name }}</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-
-
+            <thead>
+                <tr>
+                    <td>Pool</td>
+                    <td>Space</td>
+                    <td>Health</td>
+                    <td>Mountpoint</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pool in pools %}
+                <tr>
+                    <td>
+                        <a href="zfs/{{ pool.name }}"><span class="glyphicon glyphicon-link"></span><code>{{ pool.name }}</code></a>
+                    </td>
+                    <td>
+                        {{ pool.used_size|filesizeformat(binary=true) }} / {{ pool.total_size|filesizeformat(binary=true) }}
+                    </td>
+                    <td>
+                        {{ pool.health }}
+                    </td>
+                    <td>
+                        {{ pool.mountpoint }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
   </div>

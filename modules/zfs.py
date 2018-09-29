@@ -60,6 +60,7 @@ class Health(Enum):
 
     @staticmethod
     def parse_str(s: str):
+        s = s.strip(' ')
         if s == 'ONLINE':
             return Health.ONLINE
         elif s == 'DEGRADED':
@@ -76,9 +77,9 @@ class Health(Enum):
 
     def __str__(self):
         if self.value == Health.ONLINE.value:
-            return "ONLINE"
+            return 'ONLINE'
         elif self.value == Health.DEGRADED.value:
-            return "DEGRADED"
+            return 'DEGRADED'
         elif self.value == Health.FAULTED.value:
             return 'FAULTED'
         elif self.value == Health.OFFLINE.value:
@@ -92,12 +93,15 @@ class Health(Enum):
 
 class ZFSPool(object):
     def __init__(self):
-        self.name = ""
+        self.name = ''
         self.total_size = 0
         self.used_size = 0
         self.available_size = 0
         self.mountpoint = ''
         self.health = Health.UNKNOWN
+        self.status = ''
+        self.action = ''
+        self.scan = ''
 
     def __str__(self):
         return '{0} ({1}) {2}/{3}'.format(self.name, self.health, utils.format_size(self.used_size), utils.format_size(self.total_size))
@@ -129,22 +133,74 @@ class ZFSPool(object):
     def get_pool(name: str):
         if utils.testmode():
             r = 0
-            s = '{0}\tONLINE\n'.format(name)
+            s = '''  pool: {}
+ state: ONLINE
+status: Some supported features are not enabled on the pool. The pool can
+	still be used, but some features are unavailable.
+action: Enable all features using 'zpool upgrade'. Once this is done,
+	the pool may no longer be accessible by software that does not support
+	the features. See zpool-features(7) for details.
+  scan: scrub repaired 640K in 9h52m with 0 errors on Mon May 21 20:48:44 2018
+config:
+
+	NAME                          STATE     READ WRITE CKSUM
+	data                          ONLINE       0     0     0
+	  raidz2-0                    ONLINE       0     0     0
+	    da4p1                     ONLINE       0     0     0
+	    da7p1                     ONLINE       0     0     0
+	    da2p1                     ONLINE       0     0     0
+	    da6p1                     ONLINE       0     0     0
+	    da3p1                     ONLINE       0     0     0
+	    gpt/zfs-6a95a0cebbca1821  ONLINE       0     0     0
+	logs
+	  mirror-1                    ONLINE       0     0     0
+	    nvd0                      ONLINE       0     0     0
+	    nvd1                      ONLINE       0     0     0
+
+errors: No known data errors'''.format(name)
         else:
-            cmd = 'zpool list -Ho name,health {0}'.format(name)
+            cmd = 'zpool status {0}'.format(name)
             r, s = utils.execute(cmd)
 
         if r != 0:
             # TODO: Error handling
             pass
 
-        s = s.strip('\n')
-        values = s.split('\t')
-        if len(values) == 0:
-            return None
         pool = ZFSPool()
-        pool.name = values[0]
-        pool.health = Health.parse_str(values[1])
+
+        lines = s.split('\n')
+        in_config = False
+        cur_val = ''
+        cur_name = ''
+        for line in lines:
+            if not in_config:
+                # status, action, scan can be multiline strings
+                if line[0] == '\t':  # line start with tab, so it's a continuation of the previous line
+                    cur_val += ' {}'.format(line)
+                    if cur_name == 'status':
+                        pool.status = cur_val
+                    elif cur_name == 'action':
+                        pool.action = cur_val
+                    continue
+                # line is not a continuation
+                parts = line.split(':')
+                cur_name = parts[0].strip(' ')
+                cur_val = ':'.join(parts[1:])
+
+                if cur_name == 'pool':
+                    pool.name = cur_val
+                elif cur_name == 'state':
+                    pool.health = Health.parse_str(cur_val)
+                elif cur_name == 'config':
+                    in_config = True
+                elif cur_name == 'status':
+                    pool.status = cur_val
+                elif cur_name == 'action':
+                    pool.action = cur_val
+                elif cur_name == 'scan':
+                    pool.scan = cur_val
+                continue
+
         pool.update()
         return pool
 

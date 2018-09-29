@@ -4,7 +4,8 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12 text-left">
-        {{ system }}
+        <h1>{{ system.hostname }}</h1>
+        <p>Uptime: {{ system.uptime }}</p>
     </div>
   </div>
 </div>

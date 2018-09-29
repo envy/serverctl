@@ -4,3 +4,5 @@ template_args = {
         ('/', 'index', 'Start', ''),
     ],
 }
+
+loaded_modules = []

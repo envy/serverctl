@@ -4,7 +4,21 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12 text-left">
-        {{ pool }}
+        <h1>Pool <code>{{ pool.name }}</code></h1>
+        <h2>Health</h2>
+        <div class="">{{ pool.health }}</div>
+        {% if pool.status != '' %}
+        <h2>Status</h2>
+        <div class="well">{{ pool.status }}</div>
+        {% endif %}
+        {% if pool.action != '' %}
+        <h2>Action</h2>
+        <div class="well">{{ pool.action }}</div>
+        {% endif %}
+        {% if pool.scan != '' %}
+        <h2>Scan</h2>
+        <div class="well">{{ pool.scan }}</div>
+        {% endif %}
     </div>
   </div>
 </div>
