@@ -1,6 +1,5 @@
 import functools
-from modules.zfs.module import ZFS
-from modules.system.module import System
+from modules import System, ZFS
 import bottle
 import state
 
