@@ -90,4 +90,4 @@ def execute(cmd: str):
     print('Execute result: ')
     print(result)
     encoded = result.stdout.decode(sys.stdout.encoding)
-    return encoded
+    return result.returncode, encoded

@@ -30,8 +30,13 @@
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        {% for href, id, caption in navbar %}
-        <li {% if id == active_page %}class="active"{% endif %}><a href="{{ href|e }}">{{ caption|e }}</a></li>
+        {% for crumb, id, caption, icon in navbar %}
+        <li {% if id == active_page %}class="active"{% endif %}>
+            <a href="{{ crumb|e }}">
+                <span class="glyphicon {{ icon }}" aria-hidden="true"></span>
+                {{ caption|e }}
+            </a>
+        </li>
         {% endfor %}
       </ul>
     </div>
