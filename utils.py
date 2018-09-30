@@ -85,7 +85,10 @@ def split_cmd(cmd: str):
 
 def execute(cmd: str):
     if testmode():
-        return tests.fakedataprovider.execute_fake(cmd)
+        code, encoded = tests.fakedataprovider.execute_fake(cmd)
+        if len(encoded) != 0:
+            return code, encoded
+        # really execute if result empty
 
     cmdarr = split_cmd(cmd)
     result = subprocess.run(cmdarr, stdout=subprocess.PIPE)

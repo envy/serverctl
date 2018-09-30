@@ -19,6 +19,22 @@
         <h2>Scan</h2>
         <div class="well">{{ pool.scan }}</div>
         {% endif %}
+        <h2>Hierarchy</h2>
+        {% for vdev in pool.vdevs %}
+            <div>{{ vdev }}</div>
+            {% for disk in vdev.disks %}
+                <div>{{ disk }}</div>
+            {% endfor %}
+        {% endfor %}
+        {% if pool.logs %}
+        <h2>Logs</h2>
+            {% for vdev in pool.logs.vdevs %}
+                <div>{{ vdev }}</div>
+                {% for disk in vdev.disks %}
+                    <div>{{ disk }}</div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
     </div>
   </div>
 </div>

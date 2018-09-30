@@ -44,6 +44,42 @@ class Health(Enum):
         return 'UNKNOWN'
 
 
+class ZFSDisk(object):
+    def __init__(self):
+        self.name = ''
+        self.errors = {'read': 0, 'write': 0, 'chksum': 0}
+        self.health = Health.UNKNOWN
+
+    def __str__(self):
+        return '{} {} ({})'.format(self.name, self.health, self.errors)
+
+
+class ZFSVDevType(Enum):
+    UNKNOWN = -1
+    NORMAL = 0
+    LOGS = 1
+
+
+class ZFSVDev(object):
+    def __init__(self):
+        self.name = ''
+        self.errors = {'read': 0, 'write': 0, 'chksum': 0}
+        self.health = Health.UNKNOWN
+        self.disks = []
+
+    def __str__(self):
+        return '{} {} ({})'.format(self.name, self.health, self.errors)
+
+
+class ZFSLogs(object):
+    def __init__(self):
+        self.name = 'logs'
+        self.vdevs = []
+
+    def __str__(self):
+        return '{}'.format(self.name)
+
+
 class ZFSPool(object):
     def __init__(self):
         self.name = ''
@@ -55,6 +91,9 @@ class ZFSPool(object):
         self.status = ''
         self.action = ''
         self.scan = ''
+        self.errors = {'read': 0, 'write': 0, 'chksum': 0}
+        self.vdevs = []
+        self.logs = None
 
     def __str__(self):
         return '{0} ({1}) {2}/{3}'.format(self.name, self.health, utils.format_size(self.used_size),
@@ -94,6 +133,10 @@ class ZFSPool(object):
         in_config = False
         cur_val = ''
         cur_name = ''
+        conf_skipped = 0
+        cur_disk = None
+        cur_vdev = None
+        cur_pool = pool
         for line in lines:
             if not in_config:
                 # status, action, scan can be multiline strings
@@ -122,7 +165,55 @@ class ZFSPool(object):
                 elif cur_name == 'scan':
                     pool.scan = cur_val
                 continue
+            # in config
+            # at first, we need to skip two lines
+            if conf_skipped < 2:
+                conf_skipped += 1
+                continue
+            # now read line by line again
+            if line.startswith('\t    '):
+                # this is a vdev member
+                disk = ZFSDisk()
+                line = line[1:]  # remove tab
+                splits = list(filter(None, line.split(' ')))
+                disk.name = splits[0]
+                disk.health = Health.parse_str(splits[1])
+                disk.errors['read'] = int(splits[2])
+                disk.errors['write'] = int(splits[3])
+                disk.errors['chksum'] = int(splits[4])
+                if cur_disk is not None and cur_vdev is not None:
+                    cur_vdev.disks.append(cur_disk)
+                cur_disk = disk
+                continue
+            if line.startswith('\t  '):
+                # this is a vdev
+                vdev = ZFSVDev()
+                line = line[1:]  # remove tab
+                splits = list(filter(None, line.split(' ')))
+                vdev.name = splits[0]
+                vdev.health = Health.parse_str(splits[1])
+                vdev.errors['read'] = int(splits[2])
+                vdev.errors['write'] = int(splits[3])
+                vdev.errors['chksum'] = int(splits[4])
+                if cur_vdev is not None:
+                    cur_pool.vdevs.append(cur_vdev)
+                cur_vdev = vdev
+            if line.startswith('\tlogs'):
+                log = ZFSLogs()
+                if cur_disk is not None:
+                    cur_vdev.disks.append(cur_disk)
+                    cur_disk = None
+                if cur_vdev is not None:
+                    cur_pool.vdevs.append(cur_vdev)
+                    cur_vdev = None
+                cur_pool = log
 
+        if cur_disk is not None:
+            cur_vdev.disks.append(cur_disk)
+        if cur_vdev is not None:
+            cur_pool.vdevs.append(cur_vdev)
+        if type(cur_pool) is ZFSLogs:
+            pool.logs = cur_pool
         pool.update()
         return pool
 

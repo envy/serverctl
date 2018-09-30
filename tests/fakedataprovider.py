@@ -6,8 +6,6 @@ def execute_fake(cmd: str):
     # System module
     if cmd.startswith('uptime -s'):
         result = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S\n')
-    if cmd.startswith('hostname'):
-        result = 'testhost'
 
     # ZFS module
     if cmd.startswith('zpool list -Ho name,health'):
